@@ -27,7 +27,17 @@ post '/signup' do
 	end
 
 end
-
+post '/addToFavorites' do
+name = params[:name]
+image = params[:image]
+categories = params[:categories]
+if Business.where(name: name).first
+	business=Business.where(name: name).first
+else
+	business=Business.create(name: name, image: image, category: categories)
+end
+Favorite.create(user_id: session[:user_id], business_id: business.id)
+end
 get "/search" do
 erb :search
 end

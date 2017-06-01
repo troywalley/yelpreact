@@ -2,16 +2,17 @@ class App extends React.Component{
 	constructor(props){
 		super(props);
 		this.state={
-			results: []
+			results: [],
+			favorites: []
 		}
 		this.changeResults=this.changeResults.bind(this);
-
+		this.addToFavorites=this.addToFavorites.bind(this);
 	}
 	render(){
 		return(
 			<div>
 			<YelpSearch changeResults={this.changeResults} />
-			<YelpResults results={this.state.results} />
+			<YelpResults results={this.state.results} addToFavorites={this.addToFavorites}/>
 			</div>
 		)
 	}
@@ -29,27 +30,45 @@ class App extends React.Component{
 
 		})
 	}
+	addToFavorites(index){
+		let favorite=this.state.results[index];
+		axios({
+			method: "post",
+			url: '/addToFavorites',
+			params: {
+				name: favorite.name,
+				image: favorite.image_url,
+				categories: favorite.categories
+			}
+
+		}).then(function(response){
+			console.log("success");
+		})
+	}
 }
 function YelpResults(props){
   // console.log(props.results);
   let results=props.results;
+
   results=results.map(function(result, index){
-		console.log(result.image_url);
     let divStyles={
       backgroundImage: "url('" + result.image_url + "')"
     }
-		console.log(divStyles);
     return(
       <div className="flex" id={index}>
-      <div className="result">{result.name}</div>
-      <div className="yelp-image" style={divStyles}>
-      </div>
+      	<div className="result">{result.name}</div>
+      	<div className="yelp-image" style={divStyles}></div>
+				<button onClick={handleAddToFavorites} value={index}>Add To Favorites</button>
       </div>
     )
   })
   return(
     <div>{results}</div>
   )
+	function handleAddToFavorites(event){
+		props.addToFavorites(event.target.value)
+	}
+
 }
 
 class YelpSearch extends React.Component{
@@ -88,6 +107,8 @@ class YelpSearch extends React.Component{
 	}
 
 }
+
+
 
 
 ReactDOM.render(

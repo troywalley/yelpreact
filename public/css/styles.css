@@ -8,3 +8,19 @@ body {
 .appointments {
 	color: green;
 }
+.yelp-image{
+	background-size:cover;
+	width:100px;
+	height:100px;
+}
+.flex{
+	display:flex;
+	justify-content: space-around;
+	width:60%;
+	border:2px solid black;
+	
+	margin:0 auto;
+}
+.result{
+	width:50%;
+}

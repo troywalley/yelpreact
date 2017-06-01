@@ -1,10 +1,44 @@
+class App extends React.Component{
+	constructor(props){
+		super(props);
+		this.state={
+			results: []
+		}
+		this.changeResults=this.changeResults.bind(this);
+
+	}
+	render(){
+		return(
+			<div>
+			<YelpSearch changeResults={this.changeResults} />
+			<YelpResults results={this.state.results} />
+			</div>
+		)
+	}
+	changeResults(term, location){
+		let res=this;
+		axios.get("https://yelp-search.herokuapp.com/search",{
+			params: {
+				location: location,
+				term: term
+			}
+		}).then(function(response){
+			console.log(response);
+			let businesses = response.data.businesses
+			res.setState({results: businesses})
+
+		})
+	}
+}
 function YelpResults(props){
   // console.log(props.results);
   let results=props.results;
   results=results.map(function(result, index){
+		console.log(result.image_url);
     let divStyles={
       backgroundImage: "url('" + result.image_url + "')"
     }
+		console.log(divStyles);
     return(
       <div className="flex" id={index}>
       <div className="result">{result.name}</div>
@@ -24,11 +58,12 @@ class YelpSearch extends React.Component{
 		this.state={
 			location: "",
 			term: "",
-			results: []
+
 		}
+		this.handleResults=this.handleResults.bind(this);
 		this.changeLocation=this.changeLocation.bind(this);
 		this.changeTerm=this.changeTerm.bind(this);
-		this.changeResults=this.changeResults.bind(this);
+
 	}
 	render(){
 
@@ -36,8 +71,8 @@ class YelpSearch extends React.Component{
 			<div>
 				<input onChange={this.changeTerm}></input>
 				<input onChange={this.changeLocation}></input>
-				<button onClick={this.changeResults}>Search</button>
-				<YelpResults results={this.state.results} />
+				<button onClick={this.handleResults}>Search</button>
+
 
 			</div>
 		)
@@ -48,24 +83,14 @@ class YelpSearch extends React.Component{
 	changeTerm(event){
 		this.setState({term: event.target.value})
 	}
-	changeResults(){
-		let res=this;
-		axios.get("https://yelp-search.herokuapp.com/search",{
-		  params: {
-		    location: this.state.location,
-		    term: this.state.term
-		  }
-		}).then(function(response){
-		  console.log(response);
-		  let businesses = response.data.businesses
-			res.setState({results: businesses})
-
-		})
+	handleResults(){
+		this.props.changeResults(this.state.term, this.state.location)
 	}
+
 }
 
 
 ReactDOM.render(
-<YelpSearch />,
+<App apple="hello"/>,
 document.getElementById("react-search")
 )

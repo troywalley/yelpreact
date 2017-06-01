@@ -44,7 +44,11 @@ end
 post '/getFavorites' do
 User.find(session[:user_id]).businesses.to_json
 end
-
+post '/removeFavorites' do
+	business=Favorite.where(user_id: session[:user_id], business_id: params[:business_id]).first
+	Favorite.delete(business.id)
+	User.find(session[:user_id]).businesses.to_json
+end
 
 
 

@@ -10,14 +10,15 @@ class App extends React.Component{
 		this.addToFavorites=this.addToFavorites.bind(this);
 		this.getFavorites=this.getFavorites.bind(this);
 		this.showFavorites=this.showFavorites.bind(this);
+		this.removeFromFavorites=this.removeFromFavorites.bind(this);
 	}
 	render(){
 		if(this.state.favoritesShow===true){
-				var showdiv=<ShowFavorites favorites={this.state.favorites}/>
+				var showdiv=<ShowFavorites favorites={this.state.favorites} removeFromFavorites={this.removeFromFavorites}/>
 		}else{
 				var showdiv=<div>
 					<YelpSearch changeResults={this.changeResults} />
-					<YelpResults results={this.state.results} addToFavorites={this.addToFavorites}/>
+					<YelpResults results={this.state.results} addToFavorites={this.addToFavorites} />
 				</div>
 		}
 		return(
@@ -56,11 +57,13 @@ class App extends React.Component{
 			console.log("success");
 		})
 	}
-	showFavorites(){
+	showFavorites(event){
 		if(this.state.favoritesShow===false){
+			event.target.innerHTML="Hide Favorites"
 			this.setState({favoritesShow: true})
 			this.getFavorites()
 		}else{
+			event.target.innerHTML="Show Favorites"
 			this.setState({favoritesShow: false})
 		}
 	}
@@ -71,6 +74,19 @@ class App extends React.Component{
 			url: '/getFavorites',
 			params: {
 
+			}
+
+		}).then(function(response){
+			res.setState({favorites: response.data})
+		})
+	}
+	removeFromFavorites(business_id){
+		let res=this;
+		axios({
+			method: "post",
+			url: '/removeFavorites',
+			params: {
+				business_id: business_id
 			}
 
 		}).then(function(response){
@@ -120,11 +136,14 @@ class YelpSearch extends React.Component{
 
 		return(
 			<div>
+			<div className="logo"></div>
+			<div className="center">
 				<input onChange={this.changeTerm} placeholder="Search Term"></input>
 				<input onChange={this.changeLocation} placeholder="Location"></input>
 				<button onClick={this.handleResults}>Search</button>
 
 
+			</div>
 			</div>
 		)
 	}
@@ -149,11 +168,12 @@ function ShowFavoritesButton(props){
 class ShowFavorites extends React.Component{
 	constructor(props){
 		super(props);
-
+		this.handleRemoveFromFavorites=this.handleRemoveFromFavorites.bind(this);
 	}
 
 	render(){
 		console.log(this.props.favorites);
+		let ShowFavorites=this;
 		let favDiv=this.props.favorites.map(function(favorite, index){
 			let divStyles={
 				backgroundImage: "url('" + favorite.image + "')"
@@ -162,13 +182,17 @@ class ShowFavorites extends React.Component{
 				<div className="flex" id={index}>
 					<div className="result">{favorite.name}</div>
 					<div className="yelp-image" style={divStyles}></div>
-
+					<button onClick={ShowFavorites.handleRemoveFromFavorites} value={favorite.id}>RemoveFromFavorites</button>
 				</div>
 			)
 		})
 		return(
 			<div>{favDiv}</div>
 		)
+	}
+	handleRemoveFromFavorites(event){
+		console.log(this.props)
+		this.props.removeFromFavorites(event.target.value)
 	}
 }
 

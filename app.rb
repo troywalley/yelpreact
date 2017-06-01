@@ -36,12 +36,14 @@ if Business.where(name: name).first
 else
 	business=Business.create(name: name, image: image, category: categories)
 end
-Favorite.create(user_id: session[:user_id], business_id: business.id)
+Favorite.create(user_id: session[:user_id], business_id: business.id) if Favorite.where.not(user_id: session[:user_id], business_id: business.id)
 end
 get "/search" do
 erb :search
 end
-
+post '/getFavorites' do
+User.find(session[:user_id]).businesses.to_json
+end
 
 
 

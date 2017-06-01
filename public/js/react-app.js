@@ -17,16 +17,55 @@ function YelpResults(props){
     <div>{results}</div>
   )
 }
-axios.get("https://yelp-search.herokuapp.com/search",{
-  params: {
-    location: "Philadelphia",
-    term: "pizza"
-  }
-}).then(function(response){
-  console.log(response);
-  let businesses = response.data.businesses
-  ReactDOM.render(
-  <YelpResults results={businesses} />,
-  document.getElementById("react-search")
-  )
-})
+
+class YelpSearch extends React.Component{
+	constructor(props){
+		super(props);
+		this.state={
+			location: "",
+			term: "",
+			results: []
+		}
+		this.changeLocation=this.changeLocation.bind(this);
+		this.changeTerm=this.changeTerm.bind(this);
+		this.changeResults=this.changeResults.bind(this);
+	}
+	render(){
+
+		return(
+			<div>
+				<input onChange={this.changeTerm}></input>
+				<input onChange={this.changeLocation}></input>
+				<button onClick={this.changeResults}>Search</button>
+				<YelpResults results={this.state.results} />
+
+			</div>
+		)
+	}
+	changeLocation(event){
+		this.setState({location: event.target.value})
+	}
+	changeTerm(event){
+		this.setState({term: event.target.value})
+	}
+	changeResults(){
+		let res=this;
+		axios.get("https://yelp-search.herokuapp.com/search",{
+		  params: {
+		    location: this.state.location,
+		    term: this.state.term
+		  }
+		}).then(function(response){
+		  console.log(response);
+		  let businesses = response.data.businesses
+			res.setState({results: businesses})
+
+		})
+	}
+}
+
+
+ReactDOM.render(
+<YelpSearch />,
+document.getElementById("react-search")
+)
